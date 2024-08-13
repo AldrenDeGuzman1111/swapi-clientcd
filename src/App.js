@@ -1,60 +1,68 @@
-import './App.css';
 import React, { useState } from 'react';
-import { ApolloClient, InMemoryCache, ApolloProvider, useQuery, useMutation, gql } from '@apollo/client';
-
-const client = new ApolloClient({
-  uri: 'http://localhost:8080/graphql',
-  cache: new InMemoryCache()
-});
-
-const SEARCH_CHARACTER = gql`
-  query searchCharacter($name: String!) {
-    searchCharacter(name: $name) {
-      name
-      filmName
-      vehicleModel
-    }
-  }
-`;
-
-const SAVE_CHARACTER = gql`
-  mutation saveCharacter($name: String!, $filmName: String!, $vehicleModel: String!) {
-    saveCharacter(name: $name, filmName: $filmName, vehicleModel: $vehicleModel) {
-      name
-    }
-  }
-`;
+import axios from 'axios';
+import './App.css';
 
 function Character() {
-    const [id, setId] = useState('');
-    const { loading, error, data } = useQuery(SEARCH_CHARACTER, {
-        variables: { name: id },
-        skip: !id
-    });
-    const [saveCharacter] = useMutation(SAVE_CHARACTER);
+    const [results, setResults] = useState([]);
+    const [name, setName] = useState('');
+    const [showModal, setShowModal] = useState(false);
 
-    const handleSave = (name, filmName, vehicleModel) => {
-        saveCharacter({ variables: { name, filmName, vehicleModel } });
+    const fetchCharacter = () => {
+        axios.post('/graphql', {
+            query: `
+                query {
+                    searchCharacter(name: "${name}") {
+                        name
+                        filmName
+                        vehicleModel
+                    }
+                }
+            `
+        }).then(response => {
+            setResults(response.data.data.searchCharacter);
+            
+        }).catch(error => {
+            console.error('There was an error fetching the character!', error);
+        });
     };
 
+    const saveCharacter = (character) => {
+        axios.post('/graphql', {
+            query: `
+                mutation {
+                    saveCharacter(name: "${character.name}", filmName: "${character.filmName}", vehicleModel: "${character.vehicleModel}") {
+                        name
+                    }
+                }
+            `
+        }).then(() => {
+            setShowModal(true);
+        }).catch(error => {
+            console.error('There was an error saving the character!', error);
+            //setSaveMessage(`Failed to save character ${character.name}.`);
+        });
+    };
+	
+    const closeModal = () => {
+        setShowModal(false);
+    };
+	
     return (
-        <div className="character-container">
+        <div className="star-wars-theme">
+            <h1>Star Wars Character Search</h1>
+
             <input
                 type="text"
-                value={id}
-                onChange={(e) => setId(e.target.value)}
+                value={name}
+                onChange={(e) => setName(e.target.value)}
                 placeholder="Enter Character Name"
-                className="starwars-input"
             />
-            <button onClick={() => setId(id)} className="starwars-button">Fetch Character</button>
+            <button onClick={fetchCharacter}>Fetch Character</button>
 
-            {loading && <p>Loading...</p>}
-            {error && <p>Error fetching data</p>}
-
-            {data && data.searchCharacter.map((result, index) => (
-                <div key={index} className="character-card">
-                    <h2 className="character-name">{result.name}</h2>
-                    <table className="character-table">
+            {results.length > 0 && results.map((result, index) => (
+                <div key={index} className="character-table">
+                    <h2>{result.name}</h2>
+                    <table>
                         <thead>
                             <tr>
                                 <th>Name</th>
@@ -70,19 +78,20 @@ function Character() {
                             </tr>
                         </tbody>
                     </table>
-                    <button onClick={() => handleSave(result.name, result.filmName, result.vehicleModel)} className="starwars-button">Save</button>
+                    <button onClick={() => saveCharacter(result)}>Save Character</button>
                 </div>
             ))}
+			{showModal && (
+                <div className="modal">
+                    <div className="modal-content">
+                        <span className="close" onClick={closeModal}>&times;</span>
+                        <p>Character saved successfully!</p>
+                    </div>
+                </div>
+            )}
+
         </div>
     );
 }
 
-function App() {
-    return (
-        <ApolloProvider client={client}>
-            <Character />
-        </ApolloProvider>
-    );
-}
-
-export default App;
+export default Character;
