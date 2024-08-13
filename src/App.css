@@ -1,0 +1,76 @@
+/* App.css */
+
+body {
+    background-color: #000000;
+    color: #FFFFFF;
+    font-family: 'Star Jedi', Arial, sans-serif;
+}
+
+.character-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    text-align: center;
+}
+
+.starwars-input {
+    padding: 10px;
+    font-size: 1.2em;
+    width: 70%;
+    margin-bottom: 20px;
+    border: 2px solid #FFD700;
+    background-color: #000000;
+    color: #FFD700;
+    outline: none;
+}
+
+.starwars-button {
+    padding: 10px 20px;
+    font-size: 1.2em;
+    background-color: #FFD700;
+    border: none;
+    color: #000000;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.starwars-button:hover {
+    background-color: #FFDF00;
+}
+
+.character-card {
+    background-color: #1C1C1C;
+    border: 2px solid #FFD700;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0px 0px 15px rgba(255, 215, 0, 0.5);
+}
+
+.character-name {
+    font-size: 2em;
+    margin-bottom: 20px;
+    color: #FFD700;
+    text-shadow: 0px 0px 10px #FFD700;
+}
+
+.character-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.character-table th, .character-table td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #FFD700;
+}
+
+.character-table th {
+    background-color: #333333;
+    color: #FFD700;
+}
+
+.character-table td {
+    background-color: #1C1C1C;
+    color: #FFFFFF;
+}
